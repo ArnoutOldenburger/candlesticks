@@ -17,7 +17,14 @@
 #
 #   20200625: https://github.com/freqtrade/technical/tree/master/technical
 # ==============================================================================>
+
+#    debug_message = "iRow= {row} - rico_open_maxline= {rico_open_maxline}".format(row=str(iRow),rico_open_maxline=str(rico_open_maxline))
+#    win32api.MessageBox(xw.apps.active.api.Hwnd, debug_message, 'Info',win32con.MB_ICONINFORMATION)
+
 import xlwings as xw
+import win32api
+import win32con
+import numpy as np
 
 import codecs
 import glob, os
@@ -50,16 +57,40 @@ from tkinter import *
 # ==============================================================================>
 # Constants / Defines.
 # ==============================================================================>
-DEFINE_TEMP_REPORT_NAME = 'xxx'
+CONSTANT_TRADES_TIME = "B"
+CONSTANT_TRADES_OPEN = "C"
+CONSTANT_TRADES_CLOSE = "D"
+CONSTANT_TRADES_HIGH = "E"
+CONSTANT_TRADES_LOW = "F"
+CONSTANT_TRADES_VOLUMEFROM = "G"
+CONSTANT_TRADES_VOLUMETO = "H"
+CONSTANT_TRADES_TREND_RICO_OPEN_MAXLINE = "O"
+CONSTANT_TRADES_TREND_RICO_OPEN_MINLINE = "Q"
+CONSTANT_TRADES_TREND_RICO_CLOSE_MAXLINE = "S"
+CONSTANT_TRADES_TREND_RICO_CLOSE_MINLINE = "U"
+CONSTANT_TRADES_TREND_RICO_SUPPORT = "W"
+CONSTANT_TRADES_TREND_RICO_RESISTANCE = "Y"
+CONSTANT_TRADES_NR_POINTS_BETWEEN_BANDS = "AA"
+CONSTANT_TRADES_RATIO_BETWEEN_BANDS = "AB"
+CONSTANT_TRADES_NR_POINTS_BETWEEN_BANDS_2ND = "AC"
+
+CONSTANT_DATA_TIME = 1
+CONSTANT_DATA_OPEN_MAX_LINE = 2
+CONSTANT_DATA_OPEN_MIN_LINE = 3
+CONSTANT_DATA_CLOSE_MAX_LINE = 4
+CONSTANT_DATA_CLOSE_MIN_LINE = 5
+CONSTANT_DATA_SUPPORT_LINE = 6
+CONSTANT_DATA_RESISTENCE_LINE = 7
 
 # ==============================================================================>
 # function object : candle_sticks_trends
-# parameters      : xfile_fullpath
+# parameters      : iRowStart, iRowEnd
 # return value    :
 # description     :
 # ==============================================================================>
 def candle_sticks_trends(iRowStart, iRowEnd):
-    sht = xw.Book.caller().sheets['Trades']
+		
+    trades_sht = xw.Book.caller().sheets['Trades']
     data_sht = xw.Book.caller().sheets['Data']
 
     str_open_values    = ""
@@ -70,35 +101,35 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     iRowStart = int(iRowStart)
     iRowEnd = int(iRowEnd)
     iRow = iRowStart
-    
+		
     while iRow <= iRowEnd:
     
-        str_cell = "C"+str(iRow)
-        open_value = str(sht.range(str_cell).value)
+        str_cell = CONSTANT_TRADES_OPEN + str(iRow)
+        open_value = str(trades_sht.range(str_cell).value)
 
         if str_open_values:
             str_open_values = "%s,%s" % (str_open_values, open_value)
         else:
             str_open_values = "%s" % (open_value)
         
-        str_cell = "D"+str(iRow)
-        high_value = str(sht.range(str_cell).value)
+        str_cell = CONSTANT_TRADES_CLOSE + str(iRow)
+        high_value = str(trades_sht.range(str_cell).value)
 
         if str_high_values:
             str_high_values = "%s,%s" % (str_high_values, high_value)
         else:
             str_high_values = "%s" % (high_value)
 
-        str_cell = "E"+str(iRow)
-        low_value = str(sht.range(str_cell).value)
+        str_cell = CONSTANT_TRADES_HIGH + str(iRow)
+        low_value = str(trades_sht.range(str_cell).value)
 
         if str_low_values:
             str_low_values = "%s,%s" % (str_low_values, low_value)
         else:
             str_low_values = "%s" % (low_value)
         
-        str_cell = "F"+str(iRow)
-        close_value = str(sht.range(str_cell).value)
+        str_cell = CONSTANT_TRADES_LOW + str(iRow)
+        close_value = str(trades_sht.range(str_cell).value)
 
         if str_close_values:
             str_close_values = "%s,%s" % (str_close_values, close_value)
@@ -112,11 +143,11 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     o = np.fromstring(str_open_values, dtype=float, sep=',')
     c = np.fromstring(str_close_values, dtype=float, sep=',')
 
-    maxline, minline = segtrends(o, segments = 2) 
+    maxline, minline = segtrends(iRowEnd, o, segments = 3) 
     open_maxline = maxline.tolist()
     open_minline = minline.tolist()
     
-    maxline, minline = segtrends(c, segments = 2) 
+    maxline, minline = segtrends(iRowEnd, c, segments = 3) 
     close_maxline = maxline.tolist()
     close_minline = minline.tolist()
 
@@ -133,42 +164,42 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     iFirstDay = iRowStart - 3 
     iOffset = (iSessionDays * iFirstDay) + 2
     
-    str_cell = "B"+str(iRowEnd)
-    str_time = str(sht.range(str_cell).value)
+    str_cell = CONSTANT_TRADES_TIME + str(iRowEnd)
+    str_time = str(trades_sht.range(str_cell).value)
     
     i = iOffset 
     for data_point in open_maxline: 
-        data_sht.cells(i,1).value = str_time
+        data_sht.cells(i,CONSTANT_DATA_TIME).value = str_time
         i = i + 1
         
     i = iOffset 
     for data_point in open_maxline: 
-        data_sht.cells(i,2).value = data_point
+        data_sht.cells(i,CONSTANT_DATA_OPEN_MAX_LINE).value = data_point
         i = i + 1
         
     i = iOffset 
     for data_point in open_minline: 
-        data_sht.cells(i,3).value = data_point
+        data_sht.cells(i,CONSTANT_DATA_OPEN_MIN_LINE).value = data_point
         i = i + 1
     
     i = iOffset 
     for data_point in close_maxline: 
-        data_sht.cells(i,4).value = data_point
+        data_sht.cells(i,CONSTANT_DATA_CLOSE_MAX_LINE).value = data_point
         i = i + 1
     
     i = iOffset 
     for data_point in close_minline: 
-        data_sht.cells(i,5).value = data_point
+        data_sht.cells(i,CONSTANT_DATA_CLOSE_MIN_LINE).value = data_point
         i = i + 1
 
     i = iOffset 
     for data_point in support_line: 
-        data_sht.cells(i,6).value = data_point
+        data_sht.cells(i,CONSTANT_DATA_SUPPORT_LINE).value = data_point
         i = i + 1
 
     i = iOffset 
     for data_point in resistance_line: 
-        data_sht.cells(i,7).value = data_point
+        data_sht.cells(i,CONSTANT_DATA_RESISTENCE_LINE).value = data_point
         i = i + 1
     
     rico_open_maxline = rico(open_maxline)
@@ -180,41 +211,40 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     
     iRow = iRow - 1
     
-    str_cell = "O"+str(iRow)
-    sht.range(str_cell).value = rico_open_maxline
+    str_cell = CONSTANT_TRADES_TREND_RICO_OPEN_MAXLINE + str(iRow)
+    trades_sht.range(str_cell).value = rico_open_maxline
 
-    str_cell = "Q"+str(iRow)
-    sht.range(str_cell).value = rico_open_minline
+    str_cell = CONSTANT_TRADES_TREND_RICO_OPEN_MINLINE + str(iRow)
+    trades_sht.range(str_cell).value = rico_open_minline
     
-    str_cell = "S"+str(iRow)
-    sht.range(str_cell).value = rico_close_maxline
+    str_cell = CONSTANT_TRADES_TREND_RICO_CLOSE_MAXLINE + str(iRow)
+    trades_sht.range(str_cell).value = rico_close_maxline
     
-    str_cell = "U"+str(iRow)
-    sht.range(str_cell).value = rico_close_minline
+    str_cell = CONSTANT_TRADES_TREND_RICO_CLOSE_MINLINE + str(iRow)
+    trades_sht.range(str_cell).value = rico_close_minline
     
-    str_cell = "W"+str(iRow)
-    sht.range(str_cell).value = rico_support
+    str_cell = CONSTANT_TRADES_TREND_RICO_SUPPORT + str(iRow)
+    trades_sht.range(str_cell).value = rico_support
 
-    str_cell = "Y"+str(iRow)
-    sht.range(str_cell).value = rico_resistance
+    str_cell = CONSTANT_TRADES_TREND_RICO_RESISTANCE + str(iRow)
+    trades_sht.range(str_cell).value = rico_resistance
 
-    str_cell = "AA"+str(iRow)
-    sht.range(str_cell).value = nr_points_between_bands
+    str_cell = CONSTANT_TRADES_NR_POINTS_BETWEEN_BANDS + str(iRow)
+    trades_sht.range(str_cell).value = nr_points_between_bands
     
-    str_cell = "AB"+str(iRow)
-    sht.range(str_cell).value = ratio_between_bands
+    str_cell = CONSTANT_TRADES_RATIO_BETWEEN_BANDS + str(iRow)
+    trades_sht.range(str_cell).value = ratio_between_bands
 
-    str_cell = "AC"+str(iRow)
-    sht.range(str_cell).value = nr_points_between_bands_2nd
-
+    str_cell = CONSTANT_TRADES_NR_POINTS_BETWEEN_BANDS_2ND + str(iRow)
+    trades_sht.range(str_cell).value = nr_points_between_bands_2nd
     
 #==============================================================================>
 # function object : segtrends
-# parameters      : none
+# parameters      : x, segments=2
 # return value    :
 # description     : 
 #==============================================================================>
-def segtrends(x, segments=2):
+def segtrends( x, segments=2):
     """
     Turn minitrends to iterative process more easily adaptable to
     implementation in simple trading systems; allows backtesting functionality.
@@ -225,7 +255,6 @@ def segtrends(x, segments=2):
     :param charts: Boolean value saying whether to print chart to screen
     """
 
-    import numpy as np
     y = np.array(x)
 
     # Implement trendlines
@@ -233,6 +262,7 @@ def segtrends(x, segments=2):
     maxima = np.ones(segments)
     minima = np.ones(segments)
     segsize = int(len(y)/segments)
+
     for i in range(1, segments+1):
         ind2 = i*segsize
         ind1 = ind2 - segsize
@@ -242,19 +272,27 @@ def segtrends(x, segments=2):
     # Find the indexes of these maxima in the data
     x_maxima = np.ones(segments)
     x_minima = np.ones(segments)
+
     for i in range(0, segments):
         x_maxima[i] = np.where(y == maxima[i])[0][0]
+				
         x_minima[i] = np.where(y == minima[i])[0][0]
-
+				
     for i in range(0, segments-1):
         maxslope = (maxima[i+1] - maxima[i]) / (x_maxima[i+1] - x_maxima[i])
+				
         a_max = maxima[i] - (maxslope * x_maxima[i])
+				
         b_max = maxima[i] + (maxslope * (len(y) - x_maxima[i]))
+				
         maxline = np.linspace(a_max, b_max, len(y))
 
         minslope = (minima[i+1] - minima[i]) / (x_minima[i+1] - x_minima[i])
+				
         a_min = minima[i] - (minslope * x_minima[i])
+				
         b_min = minima[i] + (minslope * (len(y) - x_minima[i]))
+				
         minline = np.linspace(a_min, b_min, len(y))
 
     return maxline, minline
