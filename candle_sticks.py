@@ -143,11 +143,11 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     o = np.fromstring(str_open_values, dtype=float, sep=',')
     c = np.fromstring(str_close_values, dtype=float, sep=',')
 
-    maxline, minline = segtrends(iRowEnd, o, segments = 3) 
+    maxline, minline = segtrends(o, segments = 3) 
     open_maxline = maxline.tolist()
     open_minline = minline.tolist()
     
-    maxline, minline = segtrends(iRowEnd, c, segments = 3) 
+    maxline, minline = segtrends(c, segments = 3) 
     close_maxline = maxline.tolist()
     close_minline = minline.tolist()
 
