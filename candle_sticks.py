@@ -279,7 +279,11 @@ def segtrends( x, segments=2):
         x_minima[i] = np.where(y == minima[i])[0][0]
 				
     for i in range(0, segments-1):
-        maxslope = (maxima[i+1] - maxima[i]) / (x_maxima[i+1] - x_maxima[i])
+		
+        try:
+            maxslope = (maxima[i+1] - maxima[i]) / (x_maxima[i+1] - x_maxima[i])
+        except ZeroDivisionError:
+            maxslope = (maxima[i+1] - maxima[i]) / 0.0000000001
 				
         a_max = maxima[i] - (maxslope * x_maxima[i])
 				
@@ -287,7 +291,10 @@ def segtrends( x, segments=2):
 				
         maxline = np.linspace(a_max, b_max, len(y))
 
-        minslope = (minima[i+1] - minima[i]) / (x_minima[i+1] - x_minima[i])
+        try:
+            minslope = (minima[i+1] - minima[i]) / (x_minima[i+1] - x_minima[i])
+        except ZeroDivisionError:
+            minslope = (minima[i+1] - minima[i]) / 0.0000000001
 				
         a_min = minima[i] - (minslope * x_minima[i])
 				
