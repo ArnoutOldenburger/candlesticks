@@ -103,7 +103,7 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     iRow = iRowStart
 		
     while iRow <= iRowEnd:
-    
+
         str_cell = CONSTANT_TRADES_OPEN + str(iRow)
         open_value = str(trades_sht.range(str_cell).value)
 
@@ -142,11 +142,11 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     l = np.fromstring(str_low_values, dtype=float, sep=',')
     o = np.fromstring(str_open_values, dtype=float, sep=',')
     c = np.fromstring(str_close_values, dtype=float, sep=',')
-
+		
     maxline, minline = segtrends(o, segments = 2) 
     open_maxline = maxline.tolist()
     open_minline = minline.tolist()
-    
+	 
     maxline, minline = segtrends(c, segments = 2) 
     close_maxline = maxline.tolist()
     close_minline = minline.tolist()
@@ -279,22 +279,22 @@ def segtrends( x, segments=2):
         x_minima[i] = np.where(y == minima[i])[0][0]
 				
     for i in range(0, segments-1):
-		
-        try:
+        
+        if x_maxima[i+1] - x_maxima[i] != 0:
             maxslope = (maxima[i+1] - maxima[i]) / (x_maxima[i+1] - x_maxima[i])
-        except ZeroDivisionError:
-            maxslope = (maxima[i+1] - maxima[i]) / 0.0000000001
-				
+        else:
+            maxslope =  0
+						
         a_max = maxima[i] - (maxslope * x_maxima[i])
 				
         b_max = maxima[i] + (maxslope * (len(y) - x_maxima[i]))
 				
         maxline = np.linspace(a_max, b_max, len(y))
 
-        try:
+        if x_minima[i+1] - x_minima[i] != 0:
             minslope = (minima[i+1] - minima[i]) / (x_minima[i+1] - x_minima[i])
-        except ZeroDivisionError:
-            minslope = (minima[i+1] - minima[i]) / 0.0000000001
+        else:
+            minslope =  0
 				
         a_min = minima[i] - (minslope * x_minima[i])
 				
