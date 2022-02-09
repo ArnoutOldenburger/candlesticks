@@ -172,13 +172,15 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     
     iSessionDays = (iRowEnd - iRowStart) + 1
     iFirstDay = iRowStart - 3 
-		
-    iOffset = (iSessionDays * iFirstDay) + 2
     
     str_cell = CONSTANT_TRADES_TIME + str(iRowEnd)
     str_time = str(trades_sht.range(str_cell).value)
 
-    data_sht.cells(iOffset,CONSTANT_DATA_TIME).value = str_time
+    iOffset = iFirstDay + 2
+    str_data_cell = CONSTANT_TRADES_TIME + str(iRowEnd+1)
+    str_data_time = str(trades_sht.range(str_data_cell).value)
+		
+    data_sht.cells(iOffset,CONSTANT_DATA_TIME).value = str_data_time
     data_sht.cells(iOffset,CONSTANT_DATA_OPEN_MAX_LINE).value = str(open_maxline)
     data_sht.cells(iOffset,CONSTANT_DATA_OPEN_MAX_LINE).value = str(open_maxline)
     data_sht.cells(iOffset,CONSTANT_DATA_OPEN_MIN_LINE).value = str(open_minline)
@@ -193,8 +195,6 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     rico_close_minline = rico(close_minline)
     rico_support = rico(support_and_resistance["support"])
     rico_resistance = rico(support_and_resistance["resistance"])
-	 
-    #iRow = iRow - 1
     
     str_cell = CONSTANT_TRADES_TREND_RICO_OPEN_MAXLINE + str(iRow)
     trades_sht.range(str_cell).value = rico_open_maxline
