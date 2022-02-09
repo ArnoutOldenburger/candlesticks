@@ -64,6 +64,7 @@ CONSTANT_TRADES_HIGH = "E"
 CONSTANT_TRADES_LOW = "F"
 CONSTANT_TRADES_VOLUMEFROM = "G"
 CONSTANT_TRADES_VOLUMETO = "H"
+
 CONSTANT_TRADES_TREND_RICO_OPEN_MAXLINE = "O"
 CONSTANT_TRADES_TREND_RICO_OPEN_MINLINE = "Q"
 CONSTANT_TRADES_TREND_RICO_CLOSE_MAXLINE = "S"
@@ -81,6 +82,15 @@ CONSTANT_DATA_CLOSE_MAX_LINE = 4
 CONSTANT_DATA_CLOSE_MIN_LINE = 5
 CONSTANT_DATA_SUPPORT_LINE = 6
 CONSTANT_DATA_RESISTENCE_LINE = 7
+CONSTANT_DATA_RICO_OPEN_MAXLINE = 8
+CONSTANT_DATA_RICO_OPEN_MINLINE = 9
+CONSTANT_DATA_RICO_CLOSE_MAXLINE = 10
+CONSTANT_DATA_RICO_CLOSE_MINLINE = 11
+CONSTANT_DATA_RICO_SUPPORT = 12
+CONSTANT_DATA_RICO_RESISTANCE = 13
+CONSTANT_DATA_NR_POINTS_BETWEEN_BANDS = 14
+CONSTANT_DATA_RATIO_BETWEEN_BANDS = 15
+CONSTANT_DATA_NR_POINTS_BETWEEN_BANDS_2ND = 16
 
 # ==============================================================================>
 # function object : candle_sticks_trends
@@ -162,54 +172,29 @@ def candle_sticks_trends(iRowStart, iRowEnd):
     
     iSessionDays = (iRowEnd - iRowStart) + 1
     iFirstDay = iRowStart - 3 
+		
     iOffset = (iSessionDays * iFirstDay) + 2
     
     str_cell = CONSTANT_TRADES_TIME + str(iRowEnd)
     str_time = str(trades_sht.range(str_cell).value)
-    
-    i = iOffset 
-    for data_point in open_maxline: 
-        data_sht.cells(i,CONSTANT_DATA_TIME).value = str_time
-        i = i + 1
-        
-    i = iOffset 
-    for data_point in open_maxline: 
-        data_sht.cells(i,CONSTANT_DATA_OPEN_MAX_LINE).value = data_point
-        i = i + 1
-        
-    i = iOffset 
-    for data_point in open_minline: 
-        data_sht.cells(i,CONSTANT_DATA_OPEN_MIN_LINE).value = data_point
-        i = i + 1
-    
-    i = iOffset 
-    for data_point in close_maxline: 
-        data_sht.cells(i,CONSTANT_DATA_CLOSE_MAX_LINE).value = data_point
-        i = i + 1
-    
-    i = iOffset 
-    for data_point in close_minline: 
-        data_sht.cells(i,CONSTANT_DATA_CLOSE_MIN_LINE).value = data_point
-        i = i + 1
 
-    i = iOffset 
-    for data_point in support_line: 
-        data_sht.cells(i,CONSTANT_DATA_SUPPORT_LINE).value = data_point
-        i = i + 1
-
-    i = iOffset 
-    for data_point in resistance_line: 
-        data_sht.cells(i,CONSTANT_DATA_RESISTENCE_LINE).value = data_point
-        i = i + 1
-    
+    data_sht.cells(iOffset,CONSTANT_DATA_TIME).value = str_time
+    data_sht.cells(iOffset,CONSTANT_DATA_OPEN_MAX_LINE).value = str(open_maxline)
+    data_sht.cells(iOffset,CONSTANT_DATA_OPEN_MAX_LINE).value = str(open_maxline)
+    data_sht.cells(iOffset,CONSTANT_DATA_OPEN_MIN_LINE).value = str(open_minline)
+    data_sht.cells(iOffset,CONSTANT_DATA_CLOSE_MAX_LINE).value = str(close_maxline)
+    data_sht.cells(iOffset,CONSTANT_DATA_CLOSE_MIN_LINE).value = str(close_minline)
+    data_sht.cells(iOffset,CONSTANT_DATA_SUPPORT_LINE).value = str(support_line)
+    data_sht.cells(iOffset,CONSTANT_DATA_RESISTENCE_LINE).value = str(resistance_line)
+		
     rico_open_maxline = rico(open_maxline)
     rico_open_minline = rico(open_minline)
     rico_close_maxline = rico(close_maxline)
     rico_close_minline = rico(close_minline)
     rico_support = rico(support_and_resistance["support"])
     rico_resistance = rico(support_and_resistance["resistance"])
-    
-    iRow = iRow - 1
+	 
+    #iRow = iRow - 1
     
     str_cell = CONSTANT_TRADES_TREND_RICO_OPEN_MAXLINE + str(iRow)
     trades_sht.range(str_cell).value = rico_open_maxline
